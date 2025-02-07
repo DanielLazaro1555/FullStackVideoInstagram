@@ -1,0 +1,59 @@
+from flask import Flask, request, jsonify, send_from_directory
+import yt_dlp
+import os
+
+app = Flask(__name__)
+
+# 📂 Carpeta donde se guardarán las imágenes/videos descargados
+DOWNLOAD_FOLDER = "media"
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return "🚀 Servidor funcionando correctamente. Usa la ruta POST /descargar para obtener imágenes o videos."
+
+
+@app.route("/descargar", methods=["POST"])
+def descargar():
+    data = request.json
+    url = data.get("url")
+
+    if not url or "instagram.com" not in url:
+        return jsonify({"error": "❌ URL inválida. Debe ser un enlace de Instagram."}), 400
+
+    try:
+        # 🔹 Configurar yt-dlp para descargar el video o la imagen
+        ydl_opts = {
+            'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title)s.%(ext)s'),
+            'format': 'best',  # Mejor calidad disponible
+            'noplaylist': True,  # No descargar listas de reproducción
+            'quiet': True,  # No mostrar logs
+        }
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            result = ydl.extract_info(url, download=True)
+
+        # 🔹 Buscar el archivo descargado
+        downloaded_files = os.listdir(DOWNLOAD_FOLDER)
+        if downloaded_files:
+            # Suponiendo que el archivo descargado sea el primero
+            media_file = downloaded_files[0]
+            return jsonify({
+                "success": True,
+                "mediaUrls": [f"http://localhost:3001/media/{media_file}"]
+            })
+
+        return jsonify({"error": "⚠ No se encontró ningún archivo descargado."}), 404
+
+    except Exception as e:
+        return jsonify({"error": f"❌ Error al procesar la solicitud: {str(e)}"}), 500
+
+
+@app.route("/media/<filename>")
+def serve_media(filename):
+    return send_from_directory(DOWNLOAD_FOLDER, filename)
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=3001, use_reloader=False)
