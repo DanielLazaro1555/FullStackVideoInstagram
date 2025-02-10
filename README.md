@@ -76,4 +76,12 @@ Las contribuciones son bienvenidas. Por favor:
 
 ## 📄 Licencia
 
-Distribuido bajo GNU
+Este proyecto está licenciado bajo los términos de la **Licencia Pública General de GNU v3.0**.
+
+Puedes usar, modificar y distribuir este software libremente bajo los términos de esta licencia.
+
+🔗 [Lee más sobre la GNU GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+
+## 🖼 Vista Previa
+
+![Vista Previa del Proyecto](./Captura%20desde%202025-02-10%2002-04-22.png)
